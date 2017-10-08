@@ -1,0 +1,29 @@
+{
+  "name": "nextgen",
+  "version": "1.0.0",
+  "description": "A template based text file generator",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src/ -d lib/",
+    "prepublish": "yarn run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tleef/nextgen.git"
+  },
+  "author": "Tom Lee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tleef/nextgen/issues"
+  },
+  "homepage": "https://github.com/tleef/nextgen#readme",
+  "dependencies": {
+    "dot": "^1.1.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
+    "flow-bin": "^0.56.0"
+  }
+}
