@@ -13,9 +13,8 @@ const processPrams = (params?: Params) => {
   const data = {};
 
   if (params) {
-    Object.keys(params).forEach((key) => {
-      const param = params && params[key] || {};
-      data[key] = param.value !== undefined ? param.value : param.defaultValue;
+    params.forEach((param) => {
+      data[param.key] = param.value !== undefined ? param.value : param.defaultValue;
     })
   }
 

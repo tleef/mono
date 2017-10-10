@@ -9,8 +9,9 @@
  */
 export type Param = {
   key: string,
+  required?: boolean,
   defaultValue?: string,
   value?: string,
 };
 
-export type Params = {[key: string]: Param};
+export type Params = Array<Param>;
