@@ -1,5 +1,5 @@
 {
-  "name": "nextgen",
+  "name": "mono",
   "version": "1.0.0",
   "description": "A template based text file generator",
   "main": "lib/index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tleef/nextgen.git"
+    "url": "git+https://github.com/tleef/mono.git"
   },
   "author": "Tom Lee",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tleef/nextgen/issues"
+    "url": "https://github.com/tleef/mono/issues"
   },
-  "homepage": "https://github.com/tleef/nextgen#readme",
+  "homepage": "https://github.com/tleef/mono#readme",
   "dependencies": {
     "commander": "^2.11.0",
     "dot": "^1.1.2",
