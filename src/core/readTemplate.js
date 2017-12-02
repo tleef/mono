@@ -9,18 +9,20 @@ import fs from 'fs'
 import yaml from 'js-yaml'
 import joi from 'joi'
 
-import type {Param} from './Params'
-import type {Template} from "./Template";
+import type {Template, Param, TemplateInput} from "./Template";
 
 const FileSchema = joi.object().keys({
   text: joi.string().required(),
-  params: joi.array().items(
-    joi.string(),
-    joi.object().length(1).pattern(/.*/, joi.object().keys({
+  params: joi.object().pattern(/.*/, [
+    joi.any().valid(null),
+    joi.object().keys({
       required: joi.boolean(),
-      default: joi.string()
-    }))
-  )
+      default: joi.string(),
+    })
+  ]),
+  options: joi.object().keys({
+    output: joi.string(),
+  }),
 });
 
 const readYaml = (path: string) => {
@@ -44,25 +46,32 @@ const validateData = (data: any) => {
   return true;
 };
 
-const constructTemplate = (data: { params?: Array<string|{}>, text: string }) => {
+const constructTemplate = (data: TemplateInput) => {
   const template: Template = {
     text: data.text,
   };
 
-  if (data.params) {
-    template.params = data.params.map((o) => {
-      if (typeof o === 'string') {
-        return { key: o };
-      }
+  if (data.hasOwnProperty('options')) {
+    template.options = data.options;
+  }
 
-      // its an object of the form { key: { required?, default? } }
-      const key = Object.keys(o)[0];
-      const param: Param = { key: key };
-      if (o[key].hasOwnProperty('required')) {
-        param.required = o[key].required;
-      }
-      if (o[key].hasOwnProperty('default')) {
-        param.defaultValue = o[key].default;
+  if (data.params) {
+    let keys: Array<string> = Object.keys(data.params);
+
+    template.params = keys.map((k) => {
+      const param: Param = {key: k};
+
+      let p = data.params && data.params[k];
+
+      // p is optional
+      if (p != null) {
+        // p is an object of the form { required?, default? }
+        if (p.hasOwnProperty('required')) {
+          param.required = p.required;
+        }
+        if (p.hasOwnProperty('default')) {
+          param.defaultValue = p.default;
+        }
       }
 
       return param;

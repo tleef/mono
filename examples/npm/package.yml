@@ -1,12 +1,14 @@
 ---
 params:
-  - name:
-      required: true
-  - version:
-      required: true
-      default: "1.0.0"
-  - description
-  - author
+  name:
+    required: true
+  version:
+    required: true
+    default: 1.0.0
+  description:
+  author:
+options:
+  output: package.json
 text: |
   {
     "name": "{{=it.name}}"

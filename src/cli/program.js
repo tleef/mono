@@ -5,17 +5,11 @@
  */
 
 'use strict';
+import program from 'commander';
 
-var program = require('commander');
+import gen from './gen';
 
 program.version('1.0.0');
-
-program
-  .command('gen <template>')
-  .description('generate file with given template')
-  .option('-o, --output <file>', 'The generated output file')
-  .action(function(template, options){
-    console.log('generate file using "%s" saving to "%s"', template, options.output);
-  });
+gen(program);
 
 program.parse(process.argv);

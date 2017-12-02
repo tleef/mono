@@ -6,8 +6,7 @@
 
 import doT from 'dot'
 
-import type {Template} from './Template'
-import type {Params} from './Params'
+import type {Template, Params} from './Template'
 
 const processPrams = (params?: Params) => {
   const data = {};
