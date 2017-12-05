@@ -6,14 +6,18 @@
 
 import doT from 'dot'
 
-import type {Template, Params} from './Template'
+import type {Template, Params, Param} from './Template'
 
 const processPrams = (params?: Params) => {
   const data = {};
 
   if (params) {
-    params.forEach((param) => {
-      data[param.key] = param.value !== undefined ? param.value : param.defaultValue;
+    const keys: Array<string> = Object.keys(params);
+
+    keys.forEach((k) => {
+      const p: Param = params && params[k] || {};
+
+      data[k] = p.value !== undefined ? p.value : p.default;
     })
   }
 
@@ -21,6 +25,6 @@ const processPrams = (params?: Params) => {
 };
 
 export default (template: Template) => {
-  const tempFn = doT.template(template.text);
-  return tempFn(processPrams(template.params));
+  const templateFn = doT.template(template.text);
+  return templateFn(processPrams(template.params));
 }

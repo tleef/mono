@@ -30,16 +30,15 @@ export type TemplateInput = {
  * A plain object representation of a Param.
  */
 export type Param = {
-  key: string,
   required?: boolean,
-  defaultValue?: string,
+  default?: string,
   value?: string,
 };
 
 /**
  * A array of Param objects.
  */
-export type Params = Array<Param>;
+export type Params = {[key: string]: Param};
 
 /**
  * A plain object representation of Options.

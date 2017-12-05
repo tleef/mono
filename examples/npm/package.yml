@@ -8,7 +8,7 @@ params:
   description:
   author:
 options:
-  output: package.json
+  output: ./package.json
 text: |
   {
     "name": "{{=it.name}}"

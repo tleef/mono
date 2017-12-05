@@ -9,7 +9,7 @@ import fs from 'fs'
 import yaml from 'js-yaml'
 import joi from 'joi'
 
-import type {Template, Param, TemplateInput} from "./Template";
+import type {Template, Params, Param, TemplateInput} from "./Template";
 
 const FileSchema = joi.object().keys({
   text: joi.string().required(),
@@ -56,10 +56,12 @@ const constructTemplate = (data: TemplateInput) => {
   }
 
   if (data.params) {
+    const params: Params = {};
+
     let keys: Array<string> = Object.keys(data.params);
 
-    template.params = keys.map((k) => {
-      const param: Param = {key: k};
+    keys.forEach((k) => {
+      const param: Param = {};
 
       let p = data.params && data.params[k];
 
@@ -70,12 +72,14 @@ const constructTemplate = (data: TemplateInput) => {
           param.required = p.required;
         }
         if (p.hasOwnProperty('default')) {
-          param.defaultValue = p.default;
+          param.default = p.default;
         }
       }
 
-      return param;
-    })
+      params[k] = param;
+    });
+
+    template.params = params;
   }
 
   return template
