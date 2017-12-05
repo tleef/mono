@@ -1,0 +1,72 @@
+---
+params:
+  stringN:
+    default:
+  intN:
+    default:
+  floatN:
+    default:
+  bool:
+    default:
+
+  string:
+  stringR:
+    required: true
+  stringD:
+    default: Default
+  stringT:
+    type: string
+  stringRD:
+    required: true
+    default: Default
+  stringRT:
+    required: true
+    type: string
+  stringDT:
+    default: Default
+    type: string
+  stringRDT:
+    required: true
+    default: Default
+    type: string
+
+  intT:
+    type: int
+  intRT:
+    required: true
+    type: int
+  intDT:
+    default: 1
+    type: int
+  intRDT:
+    required: true
+    default: 1
+    type: int
+
+  floatT:
+    type: float
+  floatRT:
+    required: true
+    type: float
+  floatDT:
+    default: 1.1
+    type: float
+  floatRDT:
+    required: true
+    default: 1.1
+    type: float
+
+  boolT:
+    type: bool
+  boolRT:
+    required: true
+    type: bool
+  boolDT:
+    default: true
+    type: bool
+  boolRDT:
+    required: true
+    default: true
+    type: bool
+text: |
+  Test

@@ -17,7 +17,7 @@ const processPrams = (params?: Params) => {
     keys.forEach((k) => {
       const p: Param = params && params[k] || {};
 
-      data[k] = p.value !== undefined ? p.value : p.default;
+      data[k] = p.hasOwnProperty('value') ? p.value : p.default;
     })
   }
 

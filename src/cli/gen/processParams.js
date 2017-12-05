@@ -3,6 +3,8 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
+import validateValue from '../../core/validateValue'
+
 export default (template) => {
   const listParams = () => {
     const genParamsList = {
@@ -26,14 +28,8 @@ export default (template) => {
             ]);
 
             choices = choices.concat(paramKeys.map((key) => {
-              let choice = key;
               let param = template.params[key];
-
-              if (param.value !== undefined) {
-                choice = `${key} (${chalk.green(param.value)})`
-              } else if (param.default !== undefined) {
-                choice = `${key} (${chalk.blue(param.default)})`
-              }
+              let choice = formatChoice(key, param);
 
               return {
                 name: choice,
@@ -62,8 +58,8 @@ export default (template) => {
             let choice = key;
             let option = template.options[key];
 
-            if (option !== undefined) {
-              choice = `${key} (${chalk.green(option)})`
+            if (option != null) {
+              choice = `${key} ('${chalk.green(option)}')`
             }
 
             return {
@@ -74,7 +70,15 @@ export default (template) => {
           }));
         }
 
-        choices.push(new inquirer.Separator());
+        choices = choices.concat([
+          new inquirer.Separator(),
+          {
+            type: 'separator',
+            line: chalk.dim.bold('Menu'),
+          },
+          new inquirer.Separator()
+        ]);
+
         choices.push({
           name: 'Done',
           value: '#EXIT#',
@@ -107,16 +111,19 @@ export default (template) => {
       type: 'input',
       name: 'genEditParam',
       message: () => {
-        let message = `Edit ${key} param:`;
+        let param = template.params[key];
+        return `Edit param ${formatChoice(key, param)}:`;
+      },
+      validate: (input) => {
         let param = template.params[key];
 
-        if (param.value !== undefined) {
-          message = `Edit param ${key} (${chalk.green(param.value)}):`
-        } else if (param.default !== undefined) {
-          message = `Edit param ${key} (${chalk.blue(param.default)}):`
+        let res = validateValue(input, param.type);
+
+        if (!res.valid) {
+          return `Please enter a valid ${param.type}`
         }
 
-        return message;
+        return true;
       },
     };
 
@@ -135,8 +142,8 @@ export default (template) => {
         let message = `Edit ${key} option:`;
         let option = template.options[key];
 
-        if (option !== undefined) {
-          message = `Edit option ${key} (${chalk.green(option)}):`
+        if (option != null) {
+          message = `Edit option ${key} ('${chalk.green(option)}'):`
         }
 
         return message;
@@ -158,3 +165,27 @@ export default (template) => {
 
   return template;
 }
+
+const formatValue = (v, type) => {
+  if (type === 'string' || type === '?string') {
+    v = `'${v}'`
+  } else if (type.startsWith('array') || type.startsWith('?array')) {
+    v = `[${v.length}]`
+  }
+
+  return v;
+};
+
+const formatChoice = (key, param) => {
+  let choice = key;
+
+  if (param.value != null) {
+    let v = formatValue(param.value, param.type);
+    choice = `${key} (${chalk.green(v)})`
+  } else if (param.default != null) {
+    let v = formatValue(param.default, param.type);
+    choice = `${key} (${chalk.blue(v)})`
+  }
+
+  return choice;
+};

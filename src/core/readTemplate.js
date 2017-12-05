@@ -10,6 +10,7 @@ import yaml from 'js-yaml'
 import joi from 'joi'
 
 import type {Template, Params, Param, TemplateInput} from "./Template";
+import validateValue from './validateValue';
 
 const FileSchema = joi.object().keys({
   text: joi.string().required(),
@@ -17,7 +18,17 @@ const FileSchema = joi.object().keys({
     joi.any().valid(null),
     joi.object().keys({
       required: joi.boolean(),
-      default: joi.string(),
+      default: joi.any(),
+      type: joi.string().valid(
+        'string',
+        'int',
+        'float',
+        'bool',
+        'array<string>',
+        'array<int>',
+        'array<float>',
+        'array<bool>',
+      ),
     })
   ]),
   options: joi.object().keys({
@@ -39,8 +50,35 @@ const validateData = (data: any) => {
   const result = joi.validate(data, FileSchema);
 
   if (result.error !== null) {
-    console.log(result.error);
+    console.log('ValidateError:', result.error.message);
     return false;
+  }
+
+  if (data.params) {
+    let paramKeys = Object.keys(data.params);
+
+    if (paramKeys.length) {
+      let valid = true;
+
+      paramKeys.forEach((k) => {
+        let param = data.params[k];
+
+        if (param && param.hasOwnProperty('default')) {
+          let res = validateValue(param.default, param.type);
+
+          if (!res.valid) {
+            console.log('ValidateError:', `default value, ${param.default}, for param, ${k}, is not valid type, ${param.type || 'string'}`);
+            valid = false;
+          } else {
+            param.default = res.value;
+          }
+        }
+      });
+
+      if (!valid) {
+        return false;
+      }
+    }
   }
 
   return true;
@@ -61,19 +99,19 @@ const constructTemplate = (data: TemplateInput) => {
     let keys: Array<string> = Object.keys(data.params);
 
     keys.forEach((k) => {
-      const param: Param = {};
+      const param: Param = { type: '?string' };
 
       let p = data.params && data.params[k];
 
       // p is optional
       if (p != null) {
-        // p is an object of the form { required?, default? }
-        if (p.hasOwnProperty('required')) {
-          param.required = p.required;
-        }
+        // p is an object of the form { required?, default?, type? }
         if (p.hasOwnProperty('default')) {
           param.default = p.default;
         }
+
+        param.type = !p.required ? '?' : '';
+        param.type += p.hasOwnProperty('type') ? p.type : 'string';
       }
 
       params[k] = param;
