@@ -64,7 +64,10 @@ const validateData = (data: any) => {
         let param = data.params[k];
 
         if (param && param.hasOwnProperty('default')) {
-          let res = validateValue(param.default, param.type);
+          let type = param.required ? '' : '?';
+          type += param.type ? param.type : 'string';
+
+          let res = validateValue(param.default, type);
 
           if (!res.valid) {
             console.log('ValidateError:', `default value, ${param.default}, for param, ${k}, is not valid type, ${param.type || 'string'}`);

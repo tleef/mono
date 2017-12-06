@@ -2,12 +2,15 @@
 params:
   stringN:
     default:
-  intN:
+  intNT:
     default:
-  floatN:
+    type: int
+  floatNT:
     default:
-  bool:
+    type: float
+  boolNT:
     default:
+    type: bool
 
   string:
   stringR:
@@ -68,5 +71,65 @@ params:
     required: true
     default: true
     type: bool
+
+  arrayST:
+    type: array<string>
+  arraySRT:
+    required: true
+    type: array<string>
+  arraySDT:
+    default:
+      - one
+    type: array<string>
+  arraySRDT:
+    required: true
+    default:
+      - one
+    type: array<string>
+
+  arrayIT:
+    type: array<int>
+  arrayIRT:
+    required: true
+    type: array<int>
+  arrayIDT:
+    default:
+      - 1
+    type: array<int>
+  arrayIRDT:
+    required: true
+    default:
+      - 1
+    type: array<int>
+
+  arrayFT:
+    type: array<float>
+  arrayFRT:
+    required: true
+    type: array<float>
+  arrayFDT:
+    default:
+      - 1.1
+    type: array<float>
+  arrayFRDT:
+    required: true
+    default:
+      - 1.1
+    type: array<float>
+
+  arrayBT:
+    type: array<bool>
+  arrayBRT:
+    required: true
+    type: array<bool>
+  arrayBDT:
+    default:
+      - true
+    type: array<bool>
+  arrayBRDT:
+    required: true
+    default:
+      - true
+    type: array<bool>
 text: |
-  Test
+  Params example

@@ -15,7 +15,7 @@ export default (value: Value, type: ?string) => {
   }
 
   if (type === 'string' || type === '?string') {
-    let res = joi.string().allow('').validate(value);
+    let res = joi.string().validate(value);
 
     return {
       valid: !res.error,

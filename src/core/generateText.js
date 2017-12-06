@@ -25,6 +25,7 @@ const processPrams = (params?: Params) => {
 };
 
 export default (template: Template) => {
+  doT.templateSettings.strip = false;
   const templateFn = doT.template(template.text);
   return templateFn(processPrams(template.params));
 }

@@ -9,14 +9,15 @@ export default (program) => {
     .command('gen <template>')
     .description('generate file with given template')
     .option('-o, --output <file>', 'The generated output file')
-    .action(function(template, options){
+    .action(async (template, options) => {
       let t = readTemplate(template);
 
       // override options
       t = processOptions(options, t);
       // edit params
-      t = processParams(t);
-
-      // console.log(t);
+      t = await processParams(t);
+      // generate text
+      const text = generateText(t);
+      console.log(text);
     });
 }

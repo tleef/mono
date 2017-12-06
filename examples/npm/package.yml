@@ -13,10 +13,6 @@ text: |
   {
     "name": "{{=it.name}}"
     , "version": "{{=it.version}}"
-    {{? it.description }}
-    , "description": "{{=it.description}}"
-    {{?}}
-    {{? it.author }}
-    , "author": "{{=it.author}}"
-    {{?}}
+    {{? it.description }}, "description": "{{=it.description}}"{{?}}
+    {{? it.author }}, "author": "{{=it.author}}"{{?}}
   }

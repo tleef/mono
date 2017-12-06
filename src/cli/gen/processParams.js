@@ -5,8 +5,8 @@ import chalk from 'chalk';
 
 import validateValue from '../../core/validateValue'
 
-export default (template) => {
-  const listParams = () => {
+export default async (template) => {
+  const listParams = async () => {
     const genParamsList = {
       type: 'list',
       name: 'genParamsList',
@@ -29,7 +29,7 @@ export default (template) => {
 
             choices = choices.concat(paramKeys.map((key) => {
               let param = template.params[key];
-              let choice = formatChoice(key, param);
+              let choice = formatChoice(key, param.value, param.default, param.type);
 
               return {
                 name: choice,
@@ -55,12 +55,8 @@ export default (template) => {
           }
 
           choices = choices.concat(optionKeys.map((key) => {
-            let choice = key;
             let option = template.options[key];
-
-            if (option != null) {
-              choice = `${key} ('${chalk.green(option)}')`
-            }
+            let choice = formatChoice(key, option, null, '?string');
 
             return {
               name: choice,
@@ -89,7 +85,7 @@ export default (template) => {
       }
     };
 
-    inquirer.prompt(genParamsList).then(answers => {
+    await inquirer.prompt(genParamsList).then(async (answers) => {
       const key = answers.genParamsList;
 
       if (key === '#EXIT#') {
@@ -99,25 +95,25 @@ export default (template) => {
       let keyParts = key.split('.');
 
       if (keyParts[0] === 'params') {
-        editParam(keyParts[1]);
+        await editParam(keyParts[1]);
       } else if (keyParts[0] === 'options') {
-        editOption(keyParts[1]);
+        await editOption(keyParts[1]);
       }
     });
   };
 
-  const editParam = (key) => {
+  const editParam = async (key) => {
     const genEditParam = {
       type: 'input',
       name: 'genEditParam',
       message: () => {
         let param = template.params[key];
-        return `Edit param ${formatChoice(key, param)}:`;
+        return `Edit param ${formatChoice(key, param.value, param.default, param.type)}:`;
       },
       validate: (input) => {
         let param = template.params[key];
 
-        let res = validateValue(input, param.type);
+        let res = validateParam(input, param.type);
 
         if (!res.valid) {
           return `Please enter a valid ${param.type}`
@@ -127,41 +123,40 @@ export default (template) => {
       },
     };
 
-    inquirer.prompt(genEditParam).then(answers => {
-      template.params[key].value = answers.genEditParam;
+    await inquirer.prompt(genEditParam).then(async (answers) => {
+      let param = template.params[key];
+      let res = validateParam(answers.genEditParam, param.type);
 
-      listParams();
+      template.params[key].value = res.value;
+
+      await listParams();
     });
   };
 
-  const editOption = (key) => {
+  const editOption = async (key) => {
     const genEditOption = {
       type: 'input',
       name: 'genEditOption',
       message: () => {
-        let message = `Edit ${key} option:`;
         let option = template.options[key];
-
-        if (option != null) {
-          message = `Edit option ${key} ('${chalk.green(option)}'):`
-        }
-
-        return message;
+        return `Edit option ${formatChoice(key, option, null, '?string')}:`;
       },
     };
 
-    inquirer.prompt(genEditOption).then(answers => {
-      template.options[key] = answers.genEditOption;
+    await inquirer.prompt(genEditOption).then(async (answers) => {
+      let res = validateParam(answers.genEditOption, '?string');
 
-      listParams();
+      template.options[key] = res.value;
+
+      await listParams();
     });
   };
 
-  const main = () => {
-    listParams();
+  const main = async () => {
+    await listParams();
   };
 
-  main();
+  await main();
 
   return template;
 }
@@ -176,16 +171,25 @@ const formatValue = (v, type) => {
   return v;
 };
 
-const formatChoice = (key, param) => {
-  let choice = key;
+const formatChoice = (key, value, defaultValue, type) => {
+  let required = type.startsWith('?') ? '': chalk.red('*');
+  let choice = `${key}${required}`;
 
-  if (param.value != null) {
-    let v = formatValue(param.value, param.type);
-    choice = `${key} (${chalk.green(v)})`
-  } else if (param.default != null) {
-    let v = formatValue(param.default, param.type);
-    choice = `${key} (${chalk.blue(v)})`
+  if (value != null) {
+    let v = formatValue(value, type);
+    choice = `${choice} (${chalk.green(v)})`
+  } else if (defaultValue != null) {
+    let v = formatValue(defaultValue, type);
+    choice = `${choice} (${chalk.blue(v)})`
   }
 
   return choice;
+};
+
+const validateParam = (input, type) => {
+  if (input === '') {
+    input = null;
+  }
+
+  return validateValue(input, type);
 };
