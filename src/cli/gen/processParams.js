@@ -13,6 +13,7 @@ export default async (template) => {
   const listParams = async () => {
     const genParamsList = {
       type: 'list',
+      pageSize: 15,
       name: 'genParamsList',
       message: 'Make selection',
       choices: () => {
@@ -146,6 +147,7 @@ export default async (template) => {
   const editArrayParam = async (key) => {
     const genEditArrayParam = {
       type: 'list',
+      pageSize: 15,
       name: 'genEditArrayParam',
       message: () => {
         let param = template.params[key];
@@ -271,6 +273,7 @@ export default async (template) => {
   const deleteArrayParamIndex = async (key) => {
     const genDeleteArrayParamIndex = {
       type: 'checkbox',
+      pageSize: 15,
       name: 'genDeleteArrayParamIndex',
       message: 'Delete index(s):',
       choices: () => {
@@ -308,9 +311,11 @@ export default async (template) => {
         let param = template.params[key];
         let arr = param.value || param.default || [];
 
-        delIndexes.forEach((i) => {
-          arr.splice(i, 1);
-        });
+        delIndexes
+          .sort((a, b) => { return b - a; })
+          .forEach((i) => {
+            arr.splice(i, 1);
+          });
 
         template.params[key].value = arr;
       }
@@ -322,6 +327,7 @@ export default async (template) => {
   const addArrayParamIndex = async (key) => {
     const genAddArrayParamIndex = {
       type: 'selectLine',
+      pageSize: 15,
       name: 'genAddArrayParamIndex',
       message: 'Choose position:',
       placeholder: 'INSERT HERE',
