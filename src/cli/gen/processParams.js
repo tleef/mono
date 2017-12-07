@@ -86,23 +86,29 @@ export default async (template) => {
     };
 
     await inquirer.prompt(genParamsList).then(async (answers) => {
-      const key = answers.genParamsList;
+      const asnwer = answers.genParamsList;
 
-      if (key === '#EXIT#') {
+      if (asnwer === '#EXIT#') {
         return;
       }
 
-      let keyParts = key.split('.');
+      let asnwerParts = asnwer.split('.');
 
-      if (keyParts[0] === 'params') {
-        await editParam(keyParts[1]);
-      } else if (keyParts[0] === 'options') {
-        await editOption(keyParts[1]);
+      if (asnwerParts[0] === 'params') {
+        await editParam(asnwerParts[1]);
+      } else if (asnwerParts[0] === 'options') {
+        await editOption(asnwerParts[1]);
       }
     });
   };
 
   const editParam = async (key) => {
+    let param = template.params[key];
+    if (param.type.startsWith('array') || param.type.startsWith('?array')) {
+      await editArrayParam(key);
+      return;
+    }
+
     const genEditParam = {
       type: 'input',
       name: 'genEditParam',
@@ -130,6 +136,129 @@ export default async (template) => {
       template.params[key].value = res.value;
 
       await listParams();
+    });
+  };
+
+  const editArrayParam = async (key) => {
+    const genEditArrayParam = {
+      type: 'list',
+      name: 'genEditArrayParam',
+      message: () => {
+        let param = template.params[key];
+        return `Edit param ${formatChoice(key, param.value, param.default, param.type)}:`;
+      },
+      choices: () => {
+        let param = template.params[key];
+        let choices = [];
+        let arr = param.value || param.default || [];
+
+        choices = choices.concat([
+          new inquirer.Separator(),
+          {
+            type: 'separator',
+            line: chalk.dim.bold('Params'),
+          },
+          new inquirer.Separator()
+        ]);
+
+        if (arr.length) {
+          choices = choices.concat(arr.map((v, i) => {
+            return {
+              name: String(v),
+              value: i,
+              short: String(v),
+            }
+          }));
+        }
+
+        choices = choices.concat([
+          new inquirer.Separator(),
+          {
+            type: 'separator',
+            line: chalk.dim.bold('Menu'),
+          },
+          new inquirer.Separator()
+        ]);
+
+        choices.push(
+          {
+            name: 'Done',
+            value: '#EXIT#',
+            short: 'Done',
+          },
+          {
+            name: 'Add',
+            value: '#ADD#',
+            short: 'Add',
+          },
+          {
+            name: 'Delete',
+            value: '#DELETE#',
+            short: 'Delete',
+          }
+        );
+
+        return choices;
+      }
+    };
+
+    await inquirer.prompt(genEditArrayParam).then(async (answers) => {
+      const answer = answers.genEditArrayParam;
+
+      if (answer === '#EXIT#') {
+        await listParams();
+        return;
+      }
+
+      if (answer === '#DELETE#') {
+
+      }
+
+      if (answer === '#ADD#') {
+
+      }
+
+      await editArrayParamIndex(key, answer);
+    });
+  };
+
+  const editArrayParamIndex = async (key, i) => {
+    const genEditArrayParamIndex = {
+      type: 'input',
+      name: 'genEditArrayParamIndex',
+      message: () => {
+        let param = template.params[key];
+        let value = param.value && param.value[i];
+        let defaultValue = param.default && param.default[i];
+        let type = getArrayType(param.type);
+
+        return `Edit index ${formatChoice(i, value, defaultValue, type)}:`;
+      },
+      validate: (input) => {
+        let param = template.params[key];
+        let type = getArrayType(param.type);
+
+        let res = validateParam(input, type);
+
+        if (!res.valid) {
+          return `Please enter a valid ${type}`
+        }
+
+        return true;
+      },
+    };
+
+    await inquirer.prompt(genEditArrayParamIndex).then(async (answers) => {
+      let param = template.params[key];
+      let type = getArrayType(param.type);
+      let arr = param.value || param.default || [];
+
+      let res = validateParam(answers.genEditArrayParamIndex, type);
+      arr[i] = res.value;
+
+      template.params[key].value = arr;
+
+      await editArrayParam(key);
     });
   };
 
@@ -192,4 +321,9 @@ const validateParam = (input, type) => {
   }
 
   return validateValue(input, type);
+};
+
+const getArrayType = (type) => {
+  const r = /\??array<(.*)>/g;
+  return r.exec(type)[1];
 };
