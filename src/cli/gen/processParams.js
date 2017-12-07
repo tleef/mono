@@ -157,7 +157,7 @@ export default async (template) => {
           new inquirer.Separator(),
           {
             type: 'separator',
-            line: chalk.dim.bold('Params'),
+            line: chalk.dim.bold('Values'),
           },
           new inquirer.Separator()
         ]);
@@ -212,7 +212,8 @@ export default async (template) => {
       }
 
       if (answer === '#DELETE#') {
-
+        await deleteArrayParamIndex(key);
+        return;
       }
 
       if (answer === '#ADD#') {
@@ -258,6 +259,57 @@ export default async (template) => {
       arr[i] = res.value;
 
       template.params[key].value = arr;
+
+      await editArrayParam(key);
+    });
+  };
+
+  const deleteArrayParamIndex = async (key) => {
+    const genDeleteArrayParamIndex = {
+      type: 'checkbox',
+      name: 'genDeleteArrayParamIndex',
+      message: 'Delete index(s):',
+      choices: () => {
+        let param = template.params[key];
+        let choices = [];
+        let arr = param.value || param.default || [];
+
+        choices = choices.concat([
+          new inquirer.Separator(),
+          {
+            type: 'separator',
+            line: chalk.dim.bold('Values'),
+          },
+          new inquirer.Separator()
+        ]);
+
+        if (arr.length) {
+          choices = choices.concat(arr.map((v, i) => {
+            return {
+              name: String(v),
+              value: i,
+              short: String(v),
+            }
+          }));
+        }
+
+        return choices;
+      }
+    };
+
+    await inquirer.prompt(genDeleteArrayParamIndex).then(async (answers) => {
+      let delIndexes = answers.genDeleteArrayParamIndex || [];
+
+      if (delIndexes.length) {
+        let param = template.params[key];
+        let arr = param.value || param.default || [];
+
+        delIndexes.forEach((i) => {
+          arr.splice(i, 1);
+        });
+
+        template.params[key].value = arr;
+      }
 
       await editArrayParam(key);
     });
