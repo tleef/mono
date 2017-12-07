@@ -4,6 +4,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 import validateValue from '../../core/validateValue'
+import T from '../../core/T'
 
 export default async (template) => {
   const listParams = async () => {
@@ -56,7 +57,7 @@ export default async (template) => {
 
           choices = choices.concat(optionKeys.map((key) => {
             let option = template.options[key];
-            let choice = formatChoice(key, option, null, '?string');
+            let choice = formatChoice(key, option, null, T.optionalString);
 
             return {
               name: choice,
@@ -104,7 +105,7 @@ export default async (template) => {
 
   const editParam = async (key) => {
     let param = template.params[key];
-    if (param.type.startsWith('array') || param.type.startsWith('?array')) {
+    if (T.is(T.array, param.type)) {
       await editArrayParam(key);
       return;
     }
@@ -230,13 +231,13 @@ export default async (template) => {
         let param = template.params[key];
         let value = param.value && param.value[i];
         let defaultValue = param.default && param.default[i];
-        let type = getArrayType(param.type);
+        let type = T.getArrayType(param.type);
 
         return `Edit index ${formatChoice(i, value, defaultValue, type)}:`;
       },
       validate: (input) => {
         let param = template.params[key];
-        let type = getArrayType(param.type);
+        let type = T.getArrayType(param.type);
 
         let res = validateParam(input, type);
 
@@ -250,7 +251,7 @@ export default async (template) => {
 
     await inquirer.prompt(genEditArrayParamIndex).then(async (answers) => {
       let param = template.params[key];
-      let type = getArrayType(param.type);
+      let type = T.getArrayType(param.type);
       let arr = param.value || param.default || [];
 
       let res = validateParam(answers.genEditArrayParamIndex, type);
@@ -268,12 +269,12 @@ export default async (template) => {
       name: 'genEditOption',
       message: () => {
         let option = template.options[key];
-        return `Edit option ${formatChoice(key, option, null, '?string')}:`;
+        return `Edit option ${formatChoice(key, option, null, T.optionalString)}:`;
       },
     };
 
     await inquirer.prompt(genEditOption).then(async (answers) => {
-      let res = validateParam(answers.genEditOption, '?string');
+      let res = validateParam(answers.genEditOption, T.optionalString);
 
       template.options[key] = res.value;
 
@@ -291,9 +292,9 @@ export default async (template) => {
 }
 
 const formatValue = (v, type) => {
-  if (type === 'string' || type === '?string') {
+  if (T.is(T.string, type)) {
     v = `'${v}'`
-  } else if (type.startsWith('array') || type.startsWith('?array')) {
+  } else if (T.is(T.array, type)) {
     v = `[${v.length}]`
   }
 
@@ -301,7 +302,7 @@ const formatValue = (v, type) => {
 };
 
 const formatChoice = (key, value, defaultValue, type) => {
-  let required = type.startsWith('?') ? '': chalk.red('*');
+  let required = T.is('optional', type) ? '': chalk.red('*');
   let choice = `${key}${required}`;
 
   if (value != null) {
@@ -321,9 +322,4 @@ const validateParam = (input, type) => {
   }
 
   return validateValue(input, type);
-};
-
-const getArrayType = (type) => {
-  const r = /\??array<(.*)>/g;
-  return r.exec(type)[1];
 };

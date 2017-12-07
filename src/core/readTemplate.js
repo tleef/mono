@@ -11,6 +11,7 @@ import joi from 'joi'
 
 import type {Template, Params, Param, TemplateInput} from "./Template";
 import validateValue from './validateValue';
+import T from './T';
 
 const FileSchema = joi.object().keys({
   text: joi.string().required(),
@@ -20,14 +21,14 @@ const FileSchema = joi.object().keys({
       required: joi.boolean(),
       default: joi.any(),
       type: joi.string().valid(
-        'string',
-        'int',
-        'float',
-        'bool',
-        'array<string>',
-        'array<int>',
-        'array<float>',
-        'array<bool>',
+        T.string,
+        T.int,
+        T.float,
+        T.bool,
+        T.arrayOfStrings,
+        T.arrayOfInts,
+        T.arrayOfFloats,
+        T.arrayOfBools,
       ),
     })
   ]),
@@ -65,12 +66,12 @@ const validateData = (data: any) => {
 
         if (param && param.hasOwnProperty('default')) {
           let type = param.required ? '' : '?';
-          type += param.type ? param.type : 'string';
+          type += param.type || T.string;
 
           let res = validateValue(param.default, type);
 
           if (!res.valid) {
-            console.log('ValidateError:', `default value, ${param.default}, for param, ${k}, is not valid type, ${param.type || 'string'}`);
+            console.log('ValidateError:', `default value, ${param.default}, for param, ${k}, is not valid type, ${param.type || T.string}`);
             valid = false;
           } else {
             param.default = res.value;
@@ -102,7 +103,7 @@ const constructTemplate = (data: TemplateInput) => {
     let keys: Array<string> = Object.keys(data.params);
 
     keys.forEach((k) => {
-      const param: Param = { type: '?string' };
+      const param: Param = { type: T.optionalString };
 
       let p = data.params && data.params[k];
 
@@ -113,8 +114,8 @@ const constructTemplate = (data: TemplateInput) => {
           param.default = p.default;
         }
 
-        param.type = !p.required ? '?' : '';
-        param.type += p.hasOwnProperty('type') ? p.type : 'string';
+        param.type = p.required ? '' : '?';
+        param.type += p.type || T.string;
       }
 
       params[k] = param;

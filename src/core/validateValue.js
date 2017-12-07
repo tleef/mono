@@ -1,20 +1,21 @@
 import joi from 'joi'
 
-import {Value} from './Template'
+import {Value} from './Template';
+import T from './T';
 
 export default (value: Value, type: ?string) => {
   if (type == null) {
-    type = '?string';
+    type = T.optionalString;
   }
 
-  if (type.startsWith('?') && value === null) {
+  if (T.is('optional', type) && value === null) {
     return {
       valid: true,
       value: null,
     }
   }
 
-  if (type === 'string' || type === '?string') {
+  if (T.is(T.string, type)) {
     let res = joi.string().validate(value);
 
     return {
@@ -23,7 +24,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'int' || type === '?int') {
+  if (T.is(T.int, type)) {
     let res = joi.number().validate(value);
 
     return {
@@ -32,7 +33,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'float' || type === '?float') {
+  if (T.is(T.float, type)) {
     let res = joi.number().validate(value);
 
     return {
@@ -41,7 +42,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'bool' || type === '?bool') {
+  if (T.is(T.bool, type)) {
     let res = joi.boolean().validate(value);
 
     return {
@@ -50,7 +51,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'array<string>' || type === '?array<string>') {
+  if (T.is(T.arrayOfStrings, type)) {
     if (typeof value === 'string') {
       value = parseArray(value);
     }
@@ -63,7 +64,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'array<int>' || type === '?array<int>') {
+  if (T.is(T.arrayOfInts, type)) {
     if (typeof value === 'string') {
       value = parseArray(value);
     }
@@ -76,7 +77,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'array<float>' || type === '?array<float>') {
+  if (T.is(T.arrayOfFloats, type)) {
     if (typeof value === 'string') {
       value = parseArray(value);
     }
@@ -89,7 +90,7 @@ export default (value: Value, type: ?string) => {
     }
   }
 
-  if (type === 'array<bool>' || type === '?array<bool>') {
+  if (T.is(T.arrayOfBools, type)) {
     if (typeof value === 'string') {
       value = parseArray(value);
     }

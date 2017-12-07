@@ -131,6 +131,9 @@ params:
   arrayBRT:
     required: true
     type: array<bool>
+  arrayBNT:
+    default:
+    type: array<bool>
   arrayBDT:
     default:
       - true
@@ -141,4 +144,5 @@ params:
       - true
     type: array<bool>
 text: |
-  Params example
+  Params test
+  {{=JSON.stringify(it, null, 2)}}
