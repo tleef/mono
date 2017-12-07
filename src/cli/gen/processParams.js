@@ -1,10 +1,13 @@
 'use strict';
 
 import inquirer from 'inquirer';
+import inquirerSelectLine from 'inquirer-select-line'
 import chalk from 'chalk';
 
 import validateValue from '../../core/validateValue'
 import T from '../../core/T'
+
+inquirer.registerPrompt('selectLine', inquirerSelectLine);
 
 export default async (template) => {
   const listParams = async () => {
@@ -217,7 +220,8 @@ export default async (template) => {
       }
 
       if (answer === '#ADD#') {
-
+        await addArrayParamIndex(key);
+        return;
       }
 
       await editArrayParamIndex(key, answer);
@@ -298,7 +302,7 @@ export default async (template) => {
     };
 
     await inquirer.prompt(genDeleteArrayParamIndex).then(async (answers) => {
-      let delIndexes = answers.genDeleteArrayParamIndex || [];
+      const delIndexes = answers.genDeleteArrayParamIndex || [];
 
       if (delIndexes.length) {
         let param = template.params[key];
@@ -312,6 +316,40 @@ export default async (template) => {
       }
 
       await editArrayParam(key);
+    });
+  };
+
+  const addArrayParamIndex = async (key) => {
+    const genAddArrayParamIndex = {
+      type: 'selectLine',
+      name: 'genAddArrayParamIndex',
+      message: 'Choose position:',
+      placeholder: 'INSERT HERE',
+      prefix: chalk.green('?'),
+      suffix: '',
+      choices: () => {
+        let param = template.params[key];
+        let choices = [];
+        let arr = param.value || param.default || [];
+
+        if (arr.length) {
+          choices = choices.concat(arr);
+        }
+
+        return choices;
+      }
+    };
+
+    await inquirer.prompt(genAddArrayParamIndex).then(async (answers) => {
+      const answer = answers.genAddArrayParamIndex;
+      const param = template.params[key];
+      const arr = param.value || param.default || [];
+
+      arr.splice(answer, 0, undefined);
+
+      template.params[key].value = arr;
+
+      await editArrayParamIndex(key, answer);
     });
   };
 
