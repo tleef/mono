@@ -1,0 +1,20 @@
+---
+text: |
+  <!doctype html>
+
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Greetings</title>
+    <meta name="description" content="A generated site">
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:700" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+
+  <body>
+    <div id="greeting"></div>
+    <script src="js/main.js"></script>
+  </body>
+  </html>

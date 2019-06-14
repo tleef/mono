@@ -1,0 +1,11 @@
+---
+params:
+  name:
+    required: true
+text: |
+  (function(name) {
+    window.onload = function() {
+      var elem = document.getElementById('greeting');
+      elem.textContent = "Hello " + name;
+    }
+  )({{=it.name}})

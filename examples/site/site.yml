@@ -1,0 +1,19 @@
+---
+params:
+  name:
+    required: true
+  color:
+    required: true
+    default: cyan
+files:
+  -
+    path: ./index.html.yml
+
+  -
+    path: ./css/styles.css.yml
+    params:
+      backgroundColor: color
+  -
+    path: ./js/main.js.yml
+    params:
+      name: name

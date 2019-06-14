@@ -9,12 +9,12 @@ import fs from 'fs'
 import yaml from 'js-yaml'
 import joi from 'joi'
 
-import type {Template, Params, Param, TemplateInput} from "./Template";
+import type {Template, Params, Param, Files, File, FileParams, TemplateInput} from "./Template";
 import validateValue from './validateValue';
 import T from './T';
 
 const FileSchema = joi.object().keys({
-  text: joi.string().required(),
+  text: joi.string(),
   params: joi.object().pattern(/.*/, [
     joi.any().valid(null),
     joi.object().keys({
@@ -32,8 +32,18 @@ const FileSchema = joi.object().keys({
       ),
     })
   ]),
+  files: joi.array().items(joi.object().keys({
+    path: joi.string().required(),
+    params: joi.object().pattern(/.*/, joi.string().required())
+  })),
   options: joi.object().keys({
-    output: joi.string(),
+    output: [
+      joi.string(),
+      joi.object({
+        file: joi.string(),
+        dir: joi.string()
+      })
+    ],
   }),
 });
 
@@ -89,9 +99,11 @@ const validateData = (data: any) => {
 };
 
 const constructTemplate = (data: TemplateInput) => {
-  const template: Template = {
-    text: data.text,
-  };
+  const template: Template = {};
+
+  if (data.hasOwnProperty('text')) {
+    template.text = data.text;
+  }
 
   if (data.hasOwnProperty('options')) {
     template.options = data.options;
@@ -100,10 +112,10 @@ const constructTemplate = (data: TemplateInput) => {
   if (data.params) {
     const params: Params = {};
 
-    let keys: Array<string> = Object.keys(data.params);
+    let paramKeys: Array<string> = Object.keys(data.params);
 
-    keys.forEach((k) => {
-      const param: Param = { type: T.optionalString };
+    paramKeys.forEach((k) => {
+      const param: Param = {type: T.optionalString};
 
       let p = data.params && data.params[k];
 
@@ -122,6 +134,24 @@ const constructTemplate = (data: TemplateInput) => {
     });
 
     template.params = params;
+  }
+
+  if (data.files && data.files.length) {
+    const files: Files = [];
+
+    data.files.forEach((f) => {
+      const file: File = {
+        path: f.path,
+      };
+
+      if (f.hasOwnProperty('params')) {
+        file.params = f.params;
+      }
+
+      files.push(file);
+    });
+
+    template.files = files;
   }
 
   return template

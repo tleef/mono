@@ -1,0 +1,24 @@
+---
+params:
+  backgroundColor:
+    required: true
+text: |
+  html, body {
+    background-color: {{=it.backgroundColor}};
+  }
+
+  #greeting {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: magenta;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: yellow;
+    box-shadow: 0 8px 6px -6px black;
+    padding: 30px;
+  }

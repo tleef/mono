@@ -35,7 +35,8 @@ export type ParamsInput = { [key: string]: ?ParamInput };
 export type TemplateInput = {
   params?: ParamsInput,
   options?: Options,
-  text: string,
+  files?: Files,
+  text?: string,
 };
 
 /**
@@ -48,16 +49,41 @@ export type Param = {
 };
 
 /**
- * A array of Param objects.
+ * A map of Param objects.
  */
 export type Params = { [key: string]: Param };
+
+/**
+ * Output param types
+ */
+export type Output =
+  string
+  | { file: string, dir: string }
 
 /**
  * A plain object representation of Options.
  */
 export type Options = {
-  output?: string,
+  output?: Output,
 }
+
+/**
+ * A map of File params.
+ */
+export type FileParams = { [key: string]: string }
+
+/**
+ * A plain object representation of a File.
+ */
+export type File = {
+  path: string,
+  params?: FileParams
+}
+
+/**
+ * An array of File objects.
+ */
+export type Files = Array<File>
 
 /**
  * A plain object representation of a Template.
@@ -65,5 +91,6 @@ export type Options = {
 export type Template = {
   params?: Params,
   options?: Options,
-  text: string
+  files?: Files,
+  text?: string
 };
